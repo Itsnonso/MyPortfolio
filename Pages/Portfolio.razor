@@ -1,0 +1,332 @@
+@page "/portfolio"
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<PageTitle>Portfolio - Chinonso Iwu</PageTitle>
+
+<div class="container my-5">
+    <h3 class="text-center mb-2">My Projects</h3>
+    <p class="text-center text-muted mb-5">A showcase of enterprise applications I've built and deployed</p>
+
+    <div class="row text-center">
+        @foreach (var project in Projects.Select((p, i) => new { Project = p, Index = i }))
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm d-flex align-items-center justify-content-center p-4"
+                     @onclick="(() => ShowProject(project.Index))"
+                     style="cursor:pointer;"
+                     tabindex="0"
+                     role="button"
+                     @onkeydown="@(async (e) => { if (e.Key == "Enter" || e.Key == " ") await ShowProject(project.Index); })"
+                     aria-label="View details for @project.Project.Title">
+                    <i class="@project.Project.IconClass fa-5x mb-3 project-icon" style="color: @project.Project.Color" aria-hidden="true"></i>
+                    <div class="card-body">
+                        <h5 class="card-title">@project.Project.Title</h5>
+                        <p class="card-text text-muted small">@project.Project.ShortDescription</p>
+                        <div class="mt-2">
+                            @foreach (var tech in project.Project.TechStack.Take(3))
+                            {
+                                <span class="badge bg-secondary me-1">@tech</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            @if (SelectedProject is not null)
+            {
+                <div class="modal-header" style="background: linear-gradient(135deg, @SelectedProject.Color 0%, @SelectedProject.ColorDark 100%); color: white;">
+                    <h5 class="modal-title" id="projectModalLabel">
+                        <i class="@SelectedProject.IconClass me-2" aria-hidden="true"></i>
+                        @SelectedProject.Title
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Project Overview -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-info-circle"></i> Overview</h6>
+                        <p>@SelectedProject.FullDescription</p>
+                    </div>
+
+                    <!-- Key Features -->
+                    @if (SelectedProject.KeyFeatures.Any())
+                    {
+                        <div class="mb-4">
+                            <h6 class="text-primary"><i class="fas fa-star"></i> Key Features</h6>
+                            <ul class="list-unstyled">
+                                @foreach (var feature in SelectedProject.KeyFeatures)
+                                {
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>@feature</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <!-- Technical Details -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-cogs"></i> Technologies Used</h6>
+                        <div>
+                            @foreach (var tech in SelectedProject.TechStack)
+                            {
+                                <span class="badge bg-primary me-1 mb-1">@tech</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Impact/Results -->
+                    @if (SelectedProject.Impact.Any())
+                    {
+                        <div class="mb-4">
+                            <h6 class="text-primary"><i class="fas fa-chart-line"></i> Impact & Results</h6>
+                            <ul class="list-unstyled">
+                                @foreach (var impact in SelectedProject.Impact)
+                                {
+                                    <li class="mb-2"><i class="fas fa-arrow-up text-success me-2"></i>@impact</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <!-- My Role -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-user-tie"></i> My Role</h6>
+                        <p class="mb-0">@SelectedProject.MyRole</p>
+                    </div>
+
+                    <!-- Project Duration -->
+                    @if (!string.IsNullOrEmpty(SelectedProject.Duration))
+                    {
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                <strong>Duration:</strong> @SelectedProject.Duration
+                            </small>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ProjectModel> Projects = new()
+    {
+        new ProjectModel
+        {
+            Title = "Premium Hire (Car Rental Platform)",
+            ShortDescription = "End-to-end API platform for vehicle rental management",
+            FullDescription = "Premium Hire is a comprehensive car rental platform built with .NET 7 APIs, enabling seamless online booking, vehicle listings, and integrated payment processing. The platform serves thousands of customers monthly, processing vehicle reservations, payments, and rental management workflows.",
+            IconClass = "fas fa-car",
+            Color = "#0d6efd",
+            ColorDark = "#0a58ca",
+            TechStack = new List<string> { ".NET 7", "C#", "SQL Server", "Entity Framework", "Paystack", "FlutterWave", "Monnify", "Nomba", "Azure DevOps", "Git", "xUnit", "Moq" },
+            KeyFeatures = new List<string>
+            {
+                "Real-time vehicle availability and booking system",
+                "Multi-gateway payment integration (Paystack, FlutterWave, Monnify, Nomba)",
+                "Robust error handling and transaction recovery",
+                "Comprehensive unit and integration testing coverage",
+                "RESTful API design with proper authentication and authorization",
+                "Automated email notifications and booking confirmations",
+                "Admin dashboard for fleet management and analytics"
+            },
+            Impact = new List<string>
+            {
+                "Reduced failed payment transactions by 30% through robust error handling",
+                "Supports thousands of transactions monthly with 99.9% uptime",
+                "Improved booking completion rate by 25%",
+                "Streamlined rental operations, reducing processing time by 40%"
+            },
+            MyRole = "Lead Backend Developer - Designed and implemented the complete API architecture, integrated multiple payment gateways, established testing framework (xUnit, Moq), and collaborated with frontend team for seamless integration.",
+            Duration = "Jan 2022 - Present (Ongoing maintenance and feature additions)"
+        },
+        new ProjectModel
+        {
+            Title = "EAMS (Electronic Authorization Management System)",
+            ShortDescription = "License approval automation for Nigerian Nuclear Regulatory Authority",
+            FullDescription = "EAMS is a web-based authorization management system developed for the Nigerian Nuclear Regulatory Authority (NNRA) to digitize and automate the entire nuclear license approval workflow. The system replaces manual paper-based processes with an efficient digital platform for submitting, reviewing, and approving various types of nuclear-related authorizations.",
+            IconClass = "fas fa-shield-alt",
+            Color = "#198754",
+            ColorDark = "#146c43",
+            TechStack = new List<string> { "ASP.NET MVC", "C#", ".NET Framework", "SQL Server", "SSRS", "Entity Framework", "Bootstrap", "jQuery", "Crystal Reports" },
+            KeyFeatures = new List<string>
+            {
+                "End-to-end license application workflow (submission to approval)",
+                "Role-based access control for different user types (Applicants, Reviewers, Approvers)",
+                "Digital document management and storage",
+                "Automated email notifications for application status updates",
+                "Dynamic SSRS reporting for management insights",
+                "Audit trail for compliance and regulatory requirements",
+                "Dashboard with real-time application statistics"
+            },
+            Impact = new List<string>
+            {
+                "Reduced license approval time from weeks to days",
+                "Eliminated 90% of paper-based documentation",
+                "Improved transparency and accountability in approval process",
+                "Enabled remote application submission and tracking"
+            },
+            MyRole = "Full-Stack Developer - Developed both backend (ASP.NET MVC, SQL Server) and frontend (Bootstrap, JavaScript) components, designed database schema, implemented SSRS reports, and worked directly with stakeholders to gather requirements.",
+            Duration = "2020 - 2021 (6 months development + deployment)"
+        },
+        new ProjectModel
+        {
+            Title = "Meal Management System Modernization",
+            ShortDescription = "Legacy system migration from .NET Framework to .NET 5",
+            FullDescription = "Migrated a legacy enterprise Meal Management System from outdated .NET Framework to modern .NET 5, significantly improving performance, maintainability, and user experience. The system manages meal planning, ordering, and distribution for corporate cafeterias and institutional food services.",
+            IconClass = "fas fa-utensils",
+            Color = "#dc3545",
+            ColorDark = "#b02a37",
+            TechStack = new List<string> { ".NET 5", "C#", "SQL Server", "Entity Framework Core", "ASP.NET MVC", "Bootstrap 5", "JavaScript", "SSRS" },
+            KeyFeatures = new List<string>
+            {
+                "Modernized codebase to .NET 5 with improved architecture",
+                "Optimized database queries and stored procedures",
+                "Responsive UI redesign with Bootstrap 5",
+                "Real-time reporting with SSRS",
+                "Meal planning and nutritional tracking",
+                "Inventory management integration"
+            },
+            Impact = new List<string>
+            {
+                "Reduced page load times by 40%",
+                "Improved system maintainability and reduced technical debt",
+                "Enhanced user experience with modern, responsive UI",
+                "Enabled easier future enhancements and scalability"
+            },
+            MyRole = "Software Developer - Led the migration effort, refactored legacy code, optimized database performance, redesigned UI components, and ensured zero data loss during migration.",
+            Duration = "Nov 2019 - Dec 2021 (Ongoing enhancements)"
+        },
+        new ProjectModel
+        {
+            Title = "Payment Gateway Integration Framework",
+            ShortDescription = "Unified API for multiple payment providers",
+            FullDescription = "Developed a flexible and extensible payment gateway integration framework that abstracts multiple payment providers (Paystack, FlutterWave, Monnify, Nomba) behind a unified interface. This framework enables easy addition of new payment providers and provides consistent error handling, retry logic, and transaction reconciliation.",
+            IconClass = "fas fa-credit-card",
+            Color = "#ffc107",
+            ColorDark = "#d39e00",
+            TechStack = new List<string> { ".NET 7", "C#", "Strategy Pattern", "Factory Pattern", "Dependency Injection", "xUnit", "Moq", "REST APIs" },
+            KeyFeatures = new List<string>
+            {
+                "Abstraction layer for multiple payment providers",
+                "Automatic retry logic for failed transactions",
+                "Comprehensive transaction logging and reconciliation",
+                "Webhook handling for payment status updates",
+                "Configurable fallback mechanisms",
+                "Extensive unit and integration testing"
+            },
+            Impact = new List<string>
+            {
+                "Reduced payment integration time from weeks to hours for new providers",
+                "Decreased failed transactions by 30% through intelligent retry logic",
+                "Improved system reliability with automatic fallback to alternate gateways",
+                "Simplified maintenance with centralized payment logic"
+            },
+            MyRole = "Architect & Lead Developer - Designed the framework architecture using design patterns (Strategy, Factory), implemented integrations for all four payment gateways, and established comprehensive testing suite.",
+            Duration = "Jan 2022 - Jun 2022"
+        },
+        new ProjectModel
+        {
+            Title = "Enterprise Reporting Platform",
+            ShortDescription = "Dynamic SSRS reporting for business intelligence",
+            FullDescription = "Developed a comprehensive enterprise reporting platform using SQL Server Reporting Services (SSRS) and Crystal Reports, providing real-time business intelligence across multiple enterprise applications. The platform delivers customizable reports, dashboards, and data exports for stakeholders at all levels.",
+            IconClass = "fas fa-chart-bar",
+            Color = "#6f42c1",
+            ColorDark = "#59359a",
+            TechStack = new List<string> { "SSRS", "SQL Server", "T-SQL", "Crystal Reports", "ASP.NET MVC", "C#", "Data Warehousing" },
+            KeyFeatures = new List<string>
+            {
+                "Interactive dashboards with drill-down capabilities",
+                "Scheduled report generation and email delivery",
+                "Export to multiple formats (PDF, Excel, CSV)",
+                "Parameterized reports with dynamic filtering",
+                "Performance-optimized stored procedures",
+                "Role-based report access control"
+            },
+            Impact = new List<string>
+            {
+                "Enabled data-driven decision making across the organization",
+                "Reduced manual reporting effort by 70%",
+                "Improved report generation time by 50% through query optimization",
+                "Increased stakeholder satisfaction with real-time insights"
+            },
+            MyRole = "Reporting Specialist - Designed report layouts, optimized SQL queries and stored procedures, implemented data warehousing concepts, and trained end-users on report usage.",
+            Duration = "2020 - 2021"
+        },
+        new ProjectModel
+        {
+            Title = "Professional Portfolio (Blazor WebAssembly)",
+            ShortDescription = "Modern, responsive portfolio built with Blazor WASM",
+            FullDescription = "Designed and developed a production-ready portfolio website using Blazor WebAssembly and .NET 8, showcasing technical skills and professional projects. The site features optimized performance, SEO best practices, responsive design, and integrated EmailJS contact functionality. Implemented comprehensive optimizations including responsive images (90% size reduction), modern web standards, and accessibility features.",
+            IconClass = "fas fa-laptop-code",
+            Color = "#20c997",
+            ColorDark = "#199d76",
+            TechStack = new List<string> { "Blazor WebAssembly", ".NET 8", "C#", "Bootstrap 5", "HTML5", "CSS3", "JavaScript", "EmailJS", "Font Awesome", "Git" },
+            KeyFeatures = new List<string>
+            {
+                "Single Page Application (SPA) with client-side routing",
+                "Responsive design optimized for all device sizes",
+                "Hero image optimization with 90-97% size reduction using WebP format",
+                "Working contact form with EmailJS integration and validation",
+                "Interactive project showcase with detailed modal views",
+                "SEO-optimized with meta tags, sitemap.xml, and robots.txt",
+                "Accessibility-focused with ARIA labels and keyboard navigation",
+                "Smooth animations and fade-in effects on scroll",
+                "Professional timeline for work experience"
+            },
+            Impact = new List<string>
+            {
+                "Lighthouse Performance score: 85-95 (mobile and desktop)",
+                "Page load time: < 1 second on 4G, < 3 seconds on 3G",
+                "90% reduction in hero image size through optimization",
+                "Professional online presence showcasing technical capabilities",
+                "Mobile-first responsive design with optimal user experience"
+            },
+            MyRole = "Full-Stack Developer & Designer - Architected and built the entire application from scratch, implemented performance optimizations (responsive images, lazy loading, preloading), integrated EmailJS for contact functionality, designed responsive UI/UX, and deployed production-ready solution with comprehensive documentation.",
+            Duration = "2024 (1 week development + optimization)"
+        }
+    };
+
+    private ProjectModel? SelectedProject { get; set; }
+
+    private async Task ShowProject(int index)
+    {
+        if (index >= 0 && index < Projects.Count)
+            SelectedProject = Projects[index];
+        else
+            SelectedProject = null;
+
+        await InvokeAsync(StateHasChanged);
+        await JS.InvokeVoidAsync("bootstrapShowModal", "#projectModal");
+    }
+
+    public class ProjectModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string ShortDescription { get; set; } = string.Empty;
+        public string FullDescription { get; set; } = string.Empty;
+        public string IconClass { get; set; } = string.Empty;
+        public string Color { get; set; } = "#0d6efd";
+        public string ColorDark { get; set; } = "#0a58ca";
+        public List<string> TechStack { get; set; } = new();
+        public List<string> KeyFeatures { get; set; } = new();
+        public List<string> Impact { get; set; } = new();
+        public string MyRole { get; set; } = string.Empty;
+        public string Duration { get; set; } = string.Empty;
+    }
+}
+
+
+

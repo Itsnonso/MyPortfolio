@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chinonso Iwu - .NET Backend Developer Portfolio</title>
+    <meta name="description" content="Portfolio of Chinonso Iwu - .NET Backend Developer with 4+ years experience specializing in C#, .NET Core, API development, and cloud platforms. View my projects and get in touch." />
+    <meta name="keywords" content=".NET, Backend Developer, C#, ASP.NET, SQL Server, AWS, Azure, API Development, Portfolio" />
+    <meta name="author" content="Chinonso Iwu" />
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Chinonso Iwu - .NET Backend Developer Portfolio" />
+    <meta property="og:description" content=".NET Backend Developer with 4+ years experience building scalable enterprise solutions" />
+    <meta property="og:url" content="https://yourusername.github.io/" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Chinonso Iwu - .NET Backend Developer Portfolio" />
+    <meta name="twitter:description" content=".NET Backend Developer with 4+ years experience building scalable enterprise solutions" />
+    
+    <base href="/" />
+    <link rel="icon" href="favicon.svg" />
+    
+    <!-- Preload critical resources for faster hero image loading -->
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    
+    <!-- Preload hero image for homepage (only on initial load) -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&h=1080&fit=crop&q=80&auto=format&fm=webp" 
+          media="(min-width: 1200px)" 
+          imagesrcset="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=1200&fit=crop&q=75&auto=format&fm=webp 800w,
+                       https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=900&fit=crop&q=75&auto=format&fm=webp 1200w,
+                       https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&h=1080&fit=crop&q=80&auto=format&fm=webp 1920w"
+          imagesizes="100vw" />
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="d-flex justify-content-center align-items-center vh-100">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading portfolio...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- EmailJS SDK (client-side email service) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <script>
+        // Load configuration and initialize EmailJS
+        let emailJSConfig = null;
+
+        fetch('/appsettings.json')
+            .then(response => response.json())
+            .then(config => {
+                emailJSConfig = config.EmailJS;
+                try {
+                    if (window.emailjs && emailJSConfig.UserId !== 'YOUR_EMAILJS_USER_ID') {
+                        emailjs.init(emailJSConfig.UserId);
+                        console.log('EmailJS initialized successfully');
+                    } else {
+                        console.warn('EmailJS not configured. Please set your UserId in appsettings.json');
+                    }
+                } catch (e) {
+                    console.warn('EmailJS init failed', e);
+                }
+            })
+            .catch(err => {
+                console.error('Failed to load appsettings.json', err);
+            });
+
+        window.observeElement = (element) => {
+            if (!element) return;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            observer.observe(element);
+        }
+
+        // Helper to show a Bootstrap modal by selector
+        window.bootstrapShowModal = (selector) => {
+            try {
+                const el = document.querySelector(selector);
+                if (!el) return;
+                const modal = new bootstrap.Modal(el);
+                modal.show();
+            } catch (e) {
+                console.error('bootstrapShowModal error', e);
+            }
+        };
+
+        // Send email via EmailJS with timeout and better error handling
+        window.sendEmailJS = (templateParams) => {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (!window.emailjs) {
+                        reject({ ok: false, error: 'EmailJS SDK not loaded' });
+                        return;
+                    }
+
+                    if (!emailJSConfig) {
+                        reject({ ok: false, error: 'EmailJS configuration not loaded' });
+                        return;
+                    }
+
+                    if (emailJSConfig.UserId === 'YOUR_EMAILJS_USER_ID') {
+                        reject({ ok: false, error: 'EmailJS not configured. Please update appsettings.json' });
+                        return;
+                    }
+
+                    const serviceId = emailJSConfig.ServiceId;
+                    const templateId = emailJSConfig.TemplateId;
+
+                    // Set timeout for email sending
+                    const timeoutMs = 15000; // 15 seconds
+                    const timeoutPromise = new Promise((_, timeoutReject) => {
+                        setTimeout(() => timeoutReject({ ok: false, error: 'Request timeout' }), timeoutMs);
+                    });
+
+                    Promise.race([
+                        emailjs.send(serviceId, templateId, templateParams),
+                        timeoutPromise
+                    ])
+                        .then(function (response) {
+                            resolve({ 
+                                ok: true, 
+                                status: response.status, 
+                                text: response.text || 'Email sent successfully' 
+                            });
+                        })
+                        .catch(function (err) {
+                            resolve({ 
+                                ok: false, 
+                                error: err.error || err.text || 'Failed to send email',
+                                status: err.status 
+                            });
+                        });
+                } catch (ex) {
+                    reject({ ok: false, error: ex.message || 'Unexpected error occurred' });
+                }
+            });
+        };
+    </script>
+</body>
+</html>

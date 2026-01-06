@@ -1,0 +1,148 @@
+@page "/contact"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using System.Text.Json
+
+@inject IJSRuntime JS
+
+<PageTitle>Contact - Chinonso</PageTitle>
+
+<div class="container my-5 fade-up" @ref="ContactSection">
+    <h2 class="text-center mb-4">Contact Me</h2>
+
+    <div class="p-4 bg-light rounded shadow-sm contact-card">
+        <EditForm Model="contactModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" class="form-control bg-white text-dark" placeholder="Your name" aria-label="Name" @bind-value="contactModel.Name" disabled="@isSubmitting" />
+                <ValidationMessage For="() => contactModel.Name" />
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" type="email" class="form-control bg-white text-dark" placeholder="you@example.com" aria-label="Email" @bind-value="contactModel.Email" disabled="@isSubmitting" />
+                <ValidationMessage For="() => contactModel.Email" />
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <InputTextArea id="message" class="form-control bg-white text-dark" placeholder="Write your message..." aria-label="Message" @bind-value="contactModel.Message" Rows="4" disabled="@isSubmitting" />
+                <ValidationMessage For="() => contactModel.Message" />
+            </div>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                }
+                @submitButtonText
+            </button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(submitResultMessage))
+        {
+            <div class="alert @submitResultClass mt-3" role="alert">
+                <strong>@submitResultTitle</strong> @submitResultMessage
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ElementReference ContactSection;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("observeElement", ContactSection);
+        }
+    }
+
+    private ContactModel contactModel = new();
+    private bool isSubmitting = false;
+    private string submitButtonText = "Send Message";
+    private string submitResultMessage = string.Empty;
+    private string submitResultClass = string.Empty;
+    private string submitResultTitle = string.Empty;
+
+    public class ContactModel
+    {
+        [Required(ErrorMessage = "Name is required")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Message is required")]
+        [StringLength(2000, MinimumLength = 10, ErrorMessage = "Message must be between 10 and 2000 characters")]
+        public string Message { get; set; } = string.Empty;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        submitButtonText = "Sending...";
+        submitResultMessage = string.Empty;
+        submitResultTitle = string.Empty;
+
+        try
+        {
+            var templateParams = new
+            {
+                from_name = contactModel.Name,
+                from_email = contactModel.Email,
+                message = contactModel.Message,
+                to_name = "Chinonso"
+            };
+
+            // Call EmailJS with improved error handling
+            var resultJson = await JS.InvokeAsync<JsonElement>("sendEmailJS", templateParams);
+
+            // Parse the result
+            bool isSuccess = resultJson.TryGetProperty("ok", out var okProp) && okProp.GetBoolean();
+
+            if (isSuccess)
+            {
+                submitResultTitle = "Success!";
+                submitResultMessage = "Your message has been sent successfully. I'll get back to you soon!";
+                submitResultClass = "alert-success";
+                contactModel = new ContactModel(); // reset form
+            }
+            else
+            {
+                string errorMsg = "Unable to send message at this time.";
+                if (resultJson.TryGetProperty("error", out var errorProp))
+                {
+                    errorMsg = errorProp.GetString() ?? errorMsg;
+                }
+
+                submitResultTitle = "Error";
+                submitResultMessage = errorMsg;
+                submitResultClass = "alert-danger";
+            }
+        }
+        catch (JSException jsEx)
+        {
+            submitResultTitle = "Error";
+            submitResultMessage = "Failed to send message. Please try again or contact me directly via email.";
+            submitResultClass = "alert-danger";
+            Console.Error.WriteLine($"JS Exception: {jsEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            submitResultTitle = "Error";
+            submitResultMessage = "An unexpected error occurred. Please try again later.";
+            submitResultClass = "alert-danger";
+            Console.Error.WriteLine($"Exception: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+            submitButtonText = "Send Message";
+        }
+    }
+}
