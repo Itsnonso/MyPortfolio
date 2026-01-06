@@ -1,0 +1,215 @@
+body {
+    scroll-behavior: smooth;
+}
+
+h2 {
+    font-weight: 600;
+}
+
+/* Consolidated card hover styles */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
+}
+
+.card:hover,
+.card:focus-within {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Hero Section - Optimized */
+.hero-section {
+    height: 100vh;
+    background-color: #1a1a2e;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7));
+    z-index: 1;
+}
+
+.hero-section > div {
+    position: relative;
+    z-index: 2;
+}
+
+/* Mobile-first approach - smallest image first */
+.hero-section {
+    background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=1200&fit=crop&q=75&auto=format&fm=webp');
+}
+
+@media (min-width: 768px) {
+    .hero-section {
+        background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=900&fit=crop&q=75&auto=format&fm=webp');
+    }
+}
+
+@media (min-width: 1200px) {
+    .hero-section {
+        background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&h=1080&fit=crop&q=80&auto=format&fm=webp');
+    }
+}
+
+@media (min-width: 1920px) {
+    .hero-section {
+        background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=2560&h=1440&fit=crop&q=80&auto=format&fm=webp');
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hero-section {
+        background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&h=1080&fit=crop&q=85&auto=format&fm=webp&dpr=2');
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-section {
+        background-attachment: scroll;
+    }
+}
+
+.hero-section {
+    will-change: background-position;
+}
+
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+.animate-fade-in-delay {
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+    animation-delay: 1s;
+}
+
+.animate-fade-in-delay2 {
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+    animation-delay: 2s;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.project-icon {
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.card:hover .project-icon,
+.card:focus-within .project-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Modal styling */
+.modal-body .project-icon {
+    opacity: 0;
+    animation: iconFadeIn 0.5s forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes iconFadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+    z-index: 1050;
+    transition: opacity 0.5s ease;
+}
+
+/* Timeline */
+.timeline {
+    list-style: none;
+    padding-left: 0;
+    position: relative;
+}
+
+.timeline li {
+    padding: 10px 0;
+    position: relative;
+}
+
+.timeline li::before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    top: 10px;
+    width: 10px;
+    height: 10px;
+    background: #0d6efd;
+    border-radius: 50%;
+}
+
+.timeline li::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 25px;
+    width: 2px;
+    height: 100%;
+    background: #0d6efd;
+}
+
+.timeline li:last-child::after {
+    display: none;
+}
+
+/* Skills progress bar */
+.progress-bar {
+    font-weight: bold;
+    line-height: 20px;
+}
+
+/* Visible focus outlines for keyboard users */
+:focus {
+    outline: 3px solid rgba(13,110,253,0.25);
+    outline-offset: 2px;
+}
+
+/* Contact form styling */
+.contact-card .form-label {
+    font-weight: 600;
+}
+
+.contact-card .form-control {
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.contact-card textarea.form-control {
+    resize: vertical;
+}
