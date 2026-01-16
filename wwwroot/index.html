@@ -61,7 +61,7 @@
         // Load configuration and initialize EmailJS
         let emailJSConfig = null;
 
-        fetch('/appsettings.json')
+        fetch('appsettings.json')
             .then(response => response.json())
             .then(config => {
                 emailJSConfig = config.EmailJS;
