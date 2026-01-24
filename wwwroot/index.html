@@ -12,7 +12,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Chinonso Iwu - .NET Backend Developer Portfolio" />
     <meta property="og:description" content=".NET Backend Developer with 4+ years experience building scalable enterprise solutions" />
-    <meta property="og:url" content="https://itsnonso.github.io/" />
+    <meta property="og:url" content="https://itsnonso.github.io/MyPortfolio/" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -20,7 +20,6 @@
     <meta name="twitter:description" content=".NET Backend Developer with 4+ years experience building scalable enterprise solutions" />
 
     <base href="/MyPortfolio/" />
-
     <link rel="icon" href="favicon.svg" />
 
     <!-- Preload critical resources for faster hero image loading -->
@@ -61,7 +60,7 @@
         // Load configuration and initialize EmailJS
         let emailJSConfig = null;
 
-        fetch('appsettings.json')
+        fetch('/appsettings.json')
             .then(response => response.json())
             .then(config => {
                 emailJSConfig = config.EmailJS;
