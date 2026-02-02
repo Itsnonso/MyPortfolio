@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://itsnonso.github.io/MyPortfolio/sitemap.xml
