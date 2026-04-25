@@ -15,18 +15,6 @@
             }
         })();
     </script>
-    <script>
-        // Store the redirect before Blazor loads
-        (function() {
-            if (location.search[1] === '/' ) {
-                var decoded = location.search.slice(2)
-                    .split('&').map(function(s) { 
-                        return s.replace(/~and~/g, '&')
-                    }).join('?');
-                sessionStorage.redirect = location.pathname.slice(0, -1) + decoded + location.hash;
-            }
-        })();
-    </script>
     <meta name="description" content="Portfolio of Chinonso Iwu - .NET Backend Developer with 4+ years experience specializing in C#, .NET Core, API development, and cloud platforms. View my projects and get in touch." />
     <meta name="keywords" content=".NET, Backend Developer, C#, ASP.NET, SQL Server, AWS, Azure, API Development, Portfolio" />
     <meta name="author" content="Chinonso Iwu" />
@@ -42,7 +30,7 @@
     <meta name="twitter:title" content="Chinonso Iwu - .NET Backend Developer Portfolio" />
     <meta name="twitter:description" content=".NET Backend Developer with 4+ years experience building scalable enterprise solutions" />
 
-    <base href="/MyPortfolio/" />
+    <base href="/" />
     <link rel="icon" href="favicon.svg" />
 
     <!-- Preload critical resources for faster hero image loading -->
