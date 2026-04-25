@@ -41,7 +41,7 @@ jobs:
         run: dotnet restore
 
       - name: Build and publish
-        run: dotnet publish -c Release -o publish/wwwroot
+        run: dotnet publish -c Release -o publish
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
