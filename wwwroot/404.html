@@ -2,11 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Page Not Found</title>
+    <title>Redirecting...</title>
     <script>
-        // Simple redirect to home for 404s on root domain
-        sessionStorage.redirect = location.href;
-        location.replace('/');
+        // Single Page App (SPA) fallback for GitHub Pages
+        // When a user directly accesses /about, GitHub serves this 404.html
+        // We capture the intended URL and redirect to index.html with the path encoded
+
+        (function(){
+            var path = window.location.pathname;
+
+            // If we're already at root, don't redirect
+            if (path === '/' || path === '/index.html') {
+                window.location.replace('/');
+                return;
+            }
+
+            // Store the intended path in sessionStorage so index.html can restore it
+            sessionStorage.setItem('redirectPath', path + window.location.search + window.location.hash);
+
+            // Redirect to home page
+            window.location.replace('/');
+        })();
     </script>
 </head>
 <body>
